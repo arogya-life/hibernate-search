@@ -121,6 +121,8 @@ class IndexWriterHolder {
 	private IndexWriter createNewIndexWriter() throws IOException {
 		final IndexWriterConfig indexWriterConfig = createWriterConfig(); //Each writer config can be attached only once to an IndexWriter
 
+		System.out.println("Printing config keys for + " + indexName);
+		cfg.list(System.out);
 		String sortValue = cfg.getProperty("default.indexwriter.merge_segments_sort");
 		if (sortValue == null) {
 			LogByteSizeMergePolicy newMergePolicy = indexParameters.getNewMergePolicy();
