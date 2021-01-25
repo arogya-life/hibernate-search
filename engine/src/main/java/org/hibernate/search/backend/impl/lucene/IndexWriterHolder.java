@@ -7,6 +7,7 @@
 package org.hibernate.search.backend.impl.lucene;
 
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
@@ -122,7 +123,12 @@ class IndexWriterHolder {
 		final IndexWriterConfig indexWriterConfig = createWriterConfig(); //Each writer config can be attached only once to an IndexWriter
 
 		System.out.println("Printing config keys for + " + indexName);
-		cfg.list(System.out);
+		Enumeration<Object> keys = cfg.keys();
+		while (keys.hasMoreElements()) {
+			String key = (String) keys.nextElement();
+
+			System.out.println("KeyVal: " + key + ": " + cfg.getProperty(key));
+		}
 		String sortValue = cfg.getProperty("default.indexwriter.merge_segments_sort");
 		if (sortValue == null) {
 			LogByteSizeMergePolicy newMergePolicy = indexParameters.getNewMergePolicy();
