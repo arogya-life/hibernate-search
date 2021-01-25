@@ -7,17 +7,16 @@
 package org.hibernate.search.backend.impl.lucene;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.Properties;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.index.CorruptIndexException;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.LogByteSizeMergePolicy;
-import org.apache.lucene.index.MergeScheduler;
+import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.similarities.Similarity;
 import org.hibernate.search.backend.impl.lucene.analysis.ConcurrentlyMutableAnalyzer;
 import org.hibernate.search.backend.impl.lucene.overrides.ConcurrentMergeScheduler;
@@ -64,8 +63,9 @@ class IndexWriterHolder {
 
 	private final LuceneIndexingParameters luceneParameters;
 
+	private final Properties cfg;
 
-	IndexWriterHolder(ErrorHandler errorHandler, DirectoryBasedIndexManager indexManager) {
+	IndexWriterHolder(ErrorHandler errorHandler, DirectoryBasedIndexManager indexManager, Properties cfg) {
 		this.errorHandler = errorHandler;
 		this.indexManager = indexManager;
 		this.indexName = indexManager.getIndexName();
@@ -73,6 +73,7 @@ class IndexWriterHolder {
 		this.indexParameters = luceneParameters.getIndexParameters();
 		this.directoryProvider = indexManager.getDirectoryProvider();
 		this.similarity = indexManager.getSimilarity();
+		this.cfg = cfg;
 	}
 
 	/**
@@ -120,8 +121,18 @@ class IndexWriterHolder {
 	 */
 	private IndexWriter createNewIndexWriter() throws IOException {
 		final IndexWriterConfig indexWriterConfig = createWriterConfig(); //Each writer config can be attached only once to an IndexWriter
-		LogByteSizeMergePolicy newMergePolicy = indexParameters.getNewMergePolicy(); //TODO make it possible to configure a different policy?
-		indexWriterConfig.setMergePolicy( newMergePolicy );
+
+		String sortValue = cfg.getProperty("indexwriter.merge_segments_sort");
+		if (sortValue == null) {
+			LogByteSizeMergePolicy newMergePolicy = indexParameters.getNewMergePolicy();
+			indexWriterConfig.setMergePolicy( newMergePolicy );
+		} else {
+			String[] sortFieldId = sortValue.split(":");
+			Sort sort = new Sort(new SortField(sortFieldId[0], SortField.Type.valueOf(sortFieldId[1]), Boolean.parseBoolean(sortFieldId[2])));
+			SortingMergePolicy mergePolicy = new SortingMergePolicy(indexWriterConfig.getMergePolicy(), sort);
+			indexWriterConfig.setMergePolicy(mergePolicy);
+		}
+
 		MergeScheduler mergeScheduler = new ConcurrentMergeScheduler( this.errorHandler, this.indexName );
 		indexWriterConfig.setMergeScheduler( mergeScheduler );
 		return new IndexWriter( directoryProvider.getDirectory(), indexWriterConfig );

@@ -54,7 +54,7 @@ public abstract class AbstractWorkspaceImpl implements Workspace {
 	public AbstractWorkspaceImpl(DirectoryBasedIndexManager indexManager, WorkerBuildContext context, Properties cfg) {
 		this.indexManager = indexManager;
 		this.optimizerStrategy = indexManager.getOptimizerStrategy();
-		this.writerHolder = new IndexWriterHolder( context.getErrorHandler(), indexManager );
+		this.writerHolder = new IndexWriterHolder( context.getErrorHandler(), indexManager, cfg );
 		this.indexMetadataIsComplete = PropertiesParseHelper.isIndexMetadataComplete( cfg, context );
 		this.deleteByTermEnforced = context.isDeleteByTermEnforced();
 		this.serviceManager = context.getServiceManager();
