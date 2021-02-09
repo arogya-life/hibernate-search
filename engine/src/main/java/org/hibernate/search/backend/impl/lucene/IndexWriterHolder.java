@@ -7,7 +7,13 @@
 package org.hibernate.search.backend.impl.lucene;
 
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
-import org.apache.lucene.index.*;
+import org.apache.lucene.index.LogByteSizeMergePolicy;
+import org.apache.lucene.index.MergeScheduler;
+import org.apache.lucene.index.SortingMergePolicy;
+import org.apache.lucene.index.CorruptIndexException;
+import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
