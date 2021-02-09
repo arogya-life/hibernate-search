@@ -6,12 +6,6 @@
  */
 package org.hibernate.search.backend.impl.lucene;
 
-import java.io.IOException;
-import java.util.Enumeration;
-import java.util.Properties;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-
 import org.apache.lucene.analysis.core.SimpleAnalyzer;
 import org.apache.lucene.index.*;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -30,7 +24,12 @@ import org.hibernate.search.indexes.spi.IndexManager;
 import org.hibernate.search.store.DirectoryProvider;
 import org.hibernate.search.util.logging.impl.Log;
 import org.hibernate.search.util.logging.impl.LoggerFactory;
+
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.util.Properties;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Sanne Grinovero (C) 2011 Red Hat Inc.
@@ -123,13 +122,14 @@ class IndexWriterHolder {
 		final IndexWriterConfig indexWriterConfig = createWriterConfig(); //Each writer config can be attached only once to an IndexWriter
 
 		String sortValue = cfg.getProperty("indexwriter.merge_segments_sort");
-		if (sortValue == null) {
+		if ( sortValue == null ) {
 			LogByteSizeMergePolicy newMergePolicy = indexParameters.getNewMergePolicy();
 			indexWriterConfig.setMergePolicy( newMergePolicy );
-		} else {
+		}
+		else {
 			String[] sortFieldId = sortValue.split(":");
-			Sort sort = new Sort(new SortField(sortFieldId[0], SortField.Type.valueOf(sortFieldId[1]), Boolean.parseBoolean(sortFieldId[2])));
-			SortingMergePolicy mergePolicy = new SortingMergePolicy(indexWriterConfig.getMergePolicy(), sort);
+			Sort sort = new Sort( new SortField( sortFieldId[0], SortField.Type.valueOf( sortFieldId[1] ), Boolean.parseBoolean( sortFieldId[2] ) ) );
+			SortingMergePolicy mergePolicy = new SortingMergePolicy( indexWriterConfig.getMergePolicy(), sort );
 			indexWriterConfig.setMergePolicy(mergePolicy);
 		}
 
