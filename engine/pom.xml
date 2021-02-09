@@ -16,7 +16,6 @@
     </parent>
 
     <artifactId>hibernate-search-engine</artifactId>
-    <version>5.9.0.Final.ARO.02-SNAPSHOT</version>
 
     <name>Hibernate Search Engine</name>
     <description>Core of the Object/Lucene mapper, query engine and index management</description>
@@ -305,4 +304,8 @@
         </snapshotRepository>
     </distributionManagement>
 
+
+  <scm>
+    <tag>5.9.0.Final.ARO.02</tag>
+  </scm>
 </project>
